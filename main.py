@@ -1,16 +1,23 @@
-# This is a sample Python script.
+'''
+    I2C LCD1602 demo
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+    Author: shaoziyang
+    Date:   2018.2
 
+    http://www.micropython.org.cn
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+'''
+from machine import I2C, Pin
+from mp_i2c_lcd1602 import LCD1602
+from time import sleep_ms
 
+i2c = I2C(1, sda=Pin(21), scl=Pin(22))
+LCD = LCD1602(i2c)
+print('work')
+LCD.puts("I2C LCD1602")
+n = 0
+while 1:
+    LCD.puts(n, 0, 1)
+    n += 1
+    sleep_ms(1000)
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm!!!!')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
