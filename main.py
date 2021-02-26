@@ -9,14 +9,20 @@ from machine import I2C, Pin, PWM
 from mp_i2c_lcd1602 import LCD1602
 from ds18x20 import DS18X20
 from onewire import OneWire
+from machine import WDT
 
 
 temper_in = 0
 temper_out = 0
+old_temper_in = 0
+old_temper_out = 0
+
+time_work_device = 0
 
 servo_open = True
 servo_close = True
 
+timer = machine.Timer(0)
 
 # ИНИЦИАЛИЗАЦИЯ ПИНОВ
 sensor_DS18X20 = Pin(25, Pin.IN, Pin.PULL_UP)  # датчики температуры
@@ -60,25 +66,23 @@ def servo_state(state=0):
 servo_state(1)
 lcd.puts('open ', 0, 3)
 
-while True:
+
+def handleInterrupt(timer):
+    global old_temper_in, old_temper_out, temper_in, temper_out, time_work_device
     temp.convert_temp()
     temper_in = int(temp.read_temp(roms[0]))
     temper_out = int(temp.read_temp(roms[1]))
-    lcd.puts(temper_in, 0, 0)
-    lcd.puts(temper_out, 0, 1)
-    if temper_out > 35:
-        servo_state(0)
-        lcd.puts('close ', 0, 3)
-    elif temper_out < 33:
-        servo_state(1)
-        lcd.puts('open ', 0, 3)
+    if old_temper_out != temper_out:
+        old_temper_out = temper_out
+        lcd.puts(temper_out, 0, 1)
+    if old_temper_in != temper_in:
+        old_temper_in = temper_in
+        lcd.puts(temper_in, 0, 0)
+    time_work_device = time_work_device+1
+    lcd.puts('time: '+ str(time_work_device), 10, 0)
 
 
 
 
 
-
-
-
-
-
+timer.init(period=1000, mode=machine.Timer.PERIODIC, callback=handleInterrupt)
